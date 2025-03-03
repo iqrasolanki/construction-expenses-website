@@ -3,1044 +3,1477 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Expense & Credit Records</title>
+  <title>Construction Expense Tracker</title>
 
   <!-- Bootstrap for Modern UI -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <!-- Chart.js for Analytics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 20px;
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+      --warning-color: #f39c12;
+      --light-bg: #f5f7fa;
+      --dark-bg: rgba(0, 0, 0, 0.7);
     }
-    .container {
-      background: rgba(0, 0, 0, 0.6);
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #333;
       padding: 20px;
-      border-radius: 8px;
-      max-width: 900px;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: var(--light-bg);
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      max-width: 1100px;
       margin: auto;
     }
+
+    .card {
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-header {
+      background-color: var(--secondary-color);
+      color: white;
+      border-radius: 8px 8px 0 0 !important;
+      padding: 15px;
+    }
+
     table {
       width: 100%;
       background: white;
-      color: black;
+      border-radius: 8px;
     }
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
+
+    th {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 12px 15px;
     }
+
+    td {
+      padding: 12px 15px;
+      vertical-align: middle;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+
     .pagination {
       display: flex;
       justify-content: center;
-      margin-top: 10px;
+      margin-top: 20px;
+    }
+
+    .pagination button {
+      margin: 0 5px;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+
+    .btn-warning {
+      background-color: var(--warning-color);
+      border-color: var(--warning-color);
+    }
+
+    .expense-form {
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-section {
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge {
+      font-size: 0.85em;
+      padding: 5px 10px;
+      border-radius: 30px;
+    }
+
+    .badge-pending {
+      background-color: var(--warning-color);
+      color: white;
+    }
+
+    .badge-approved {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .badge-rejected {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .chart-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      th, td {
+        padding: 10px;
+      }
+      
+      .card-header {
+        padding: 10px;
+      }
+    }
+
+    /* Animation for loading */
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading i {
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Notification counter */
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: var(--danger-color);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Dropdown menu */
+    .dropdown-menu {
+      border: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    /* File upload */
+    .file-upload-wrapper {
+      position: relative;
+      margin-bottom: 10px;
+    }
+
+    .file-upload-input {
+      position: relative;
+      width: 100%;
+      height: 40px;
+      margin: 0;
+      padding: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-upload-button {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background-color: #f3f3f3;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 8px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    /* Budget progress bar */
+    .budget-progress {
+      height: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .budget-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85em;
+      color: #777;
     }
   </style>
 </head>
-<body onload="initializeExpenseRecords()">
+<body>
 
   <div class="container">
-    <h2 class="text-center">💰 Expense & Credit Records</h2>
-
-    <!-- From Date Filter -->
-    <div class="row mt-3">
-      <div class="col-md-4">
-        <label for="fromDate">From Date:</label>
-        <input type="date" id="fromDate" class="form-control">
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 rounded">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <i class="fas fa-building"></i> Construction Expense Tracker
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="#" id="dashboardLink">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" id="expenseFormLink">
+                <i class="fas fa-plus-circle"></i> Add Expense
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" id="reportsLink">
+                <i class="fas fa-chart-bar"></i> Reports
+              </a>
+            </li>
+          </ul>
+          <div class="d-flex">
+            <div class="position-relative me-3">
+              <button class="btn btn-outline-light position-relative" id="notificationBtn">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge" id="notificationCounter">0</span>
+              </button>
+            </div>
+            <div class="dropdown">
+              <button class="btn btn-outline-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle"></i> <span id="currentUser">User</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="col-md-4">
-        <button class="btn btn-success mt-4" onclick="filterRecords()">🔍 Apply Filter</button>
+    </nav>
+
+    <!-- Main content sections -->
+    <div id="mainContent">
+      <!-- Dashboard Section (Default view) -->
+      <div id="dashboardSection">
+        <div class="row">
+          <!-- Summary Cards -->
+          <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-file-invoice-dollar"></i> Total Expenses</h5>
+                <h2 class="display-6" id="totalExpenses">$0.00</h2>
+                <p class="card-text">Across all sites</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-check-circle"></i> Approved Expenses</h5>
+                <h2 class="display-6" id="approvedExpenses">$0.00</h2>
+                <p class="card-text">Total approved amount</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 mb-3">
+            <div class="card bg-warning text-white">
+              <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-clock"></i> Pending Expenses</h5>
+                <h2 class="display-6" id="pendingExpenses">$0.00</h2>
+                <p class="card-text"><span id="pendingCount">0</span> expenses awaiting approval</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section mb-4">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label for="siteFilter" class="form-label">Construction Site</label>
+              <select class="form-select" id="siteFilter">
+                <option value="">All Sites</option>
+                <option value="Site A">Site A</option>
+                <option value="Site B">Site B</option>
+                <option value="Site C">Site C</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="userFilter" class="form-label">Expense By</label>
+              <select class="form-select" id="userFilter">
+                <option value="">All Engineers</option>
+                <option value="John Doe">John Doe</option>
+                <option value="Jane Smith">Jane Smith</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label for="fromDate" class="form-label">From Date</label>
+              <input type="date" id="fromDate" class="form-control">
+            </div>
+            <div class="col-md-2">
+              <label for="toDate" class="form-label">To Date</label>
+              <input type="date" id="toDate" class="form-control">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button class="btn btn-primary w-100" onclick="filterRecords()">
+                <i class="fas fa-filter"></i> Apply Filter
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget Progress -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Budget Utilization</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div>
+                  <h6>Site A</h6>
+                  <div class="progress budget-progress">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <div class="budget-info">
+                    <span>$65,000 used</span>
+                    <span>$100,000 budget</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div>
+                  <h6>Site B</h6>
+                  <div class="progress budget-progress">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <div class="budget-info">
+                    <span>$85,000 used</span>
+                    <span>$100,000 budget</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div>
+                  <h6>Site C</h6>
+                  <div class="progress budget-progress">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 95%" aria-valuenow="95" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                  <div class="budget-info">
+                    <span>$95,000 used</span>
+                    <span>$100,000 budget</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Records Table -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Recent Expenses</h5>
+            <button class="btn btn-sm btn-outline-light" onclick="exportData()"><i class="fas fa-download"></i> Export</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Site</th>
+                    <th>Engineer</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recordsTableBody">
+                  <!-- Table content will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+            <!-- Pagination -->
+            <div class="pagination">
+              <button class="btn btn-outline-primary" id="prevPage" onclick="prevPage()"><i class="fas fa-chevron-left"></i> Previous</button>
+              <span id="pageInfo" class="mx-3 mt-2">Page 1</span>
+              <button class="btn btn-outline-primary" id="nextPage" onclick="nextPage()">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5 class="mb-3"><i class="fas fa-chart-pie"></i> Expense by Category</h5>
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="chart-container">
+              <h5 class="mb-3"><i class="fas fa-chart-line"></i> Monthly Expenses</h5>
+              <canvas id="monthlyChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Expense Form Section (Initially hidden) -->
+      <div id="expenseFormSection" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-plus-circle"></i> Add New Expense</h5>
+          </div>
+          <div class="card-body">
+            <form id="expenseForm" class="row g-3">
+              <div class="col-md-6">
+                <label for="expenseDate" class="form-label">Date</label>
+                <input type="date" class="form-control" id="expenseDate" required>
+              </div>
+              <div class="col-md-6">
+                <label for="expenseSite" class="form-label">Construction Site</label>
+                <select class="form-select" id="expenseSite" required>
+                  <option value="">Select Site</option>
+                  <option value="Site A">Site A</option>
+                  <option value="Site B">Site B</option>
+                  <option value="Site C">Site C</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="expenseCategory" class="form-label">Category</label>
+                <select class="form-select" id="expenseCategory" required>
+                  <option value="">Select Category</option>
+                  <option value="Materials">Materials</option>
+                  <option value="Labor">Labor</option>
+                  <option value="Equipment">Equipment</option>
+                  <option value="Transportation">Transportation</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="expenseAmount" class="form-label">Amount ($)</label>
+                <input type="number" class="form-control" id="expenseAmount" min="0" step="0.01" required>
+              </div>
+              <div class="col-12">
+                <label for="expenseDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="expenseDescription" rows="3" required></textarea>
+              </div>
+              <div class="col-12">
+                <label for="expenseReceipt" class="form-label">Receipt (Image/PDF)</label>
+                <div class="file-upload-wrapper">
+                  <input type="file" class="file-upload-input" id="expenseReceipt" accept=".jpg,.jpeg,.png,.pdf">
+                  <div class="file-upload-button" id="fileUploadButton">
+                    <span>Choose file</span>
+                    <i class="fas fa-upload"></i>
+                  </div>
+                </div>
+                <div id="filePreview" class="mt-2"></div>
+              </div>
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Submit Expense</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelExpenseForm()"><i class="fas fa-times"></i> Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Section (Initially hidden) -->
+      <div id="reportsSection" style="display: none;">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Expense Reports & Analytics</h5>
+          </div>
+          <div class="card-body">
+            <!-- Report Filters -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-3">
+                <label for="reportSite" class="form-label">Construction Site</label>
+                <select class="form-select" id="reportSite">
+                  <option value="">All Sites</option>
+                  <option value="Site A">Site A</option>
+                  <option value="Site B">Site B</option>
+                  <option value="Site C">Site C</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label for="reportCategory" class="form-label">Category</label>
+                <select class="form-select" id="reportCategory">
+                  <option value="">All Categories</option>
+                  <option value="Materials">Materials</option>
+                  <option value="Labor">Labor</option>
+                  <option value="Equipment">Equipment</option>
+                  <option value="Transportation">Transportation</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label for="reportStartDate" class="form-label">Start Date</label>
+                <input type="date" class="form-control" id="reportStartDate">
+              </div>
+              <div class="col-md-2">
+                <label for="reportEndDate" class="form-label">End Date</label>
+                <input type="date" class="form-control" id="reportEndDate">
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-primary w-100" onclick="generateReport()"><i class="fas fa-sync"></i> Generate</button>
+              </div>
+            </div>
+
+            <!-- Advanced Analytics -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <div class="chart-container">
+                  <h5 class="mb-3">Expense Trends</h5>
+                  <canvas id="trendChart"></canvas>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="chart-container">
+                  <h5 class="mb-3">Expense Forecast</h5>
+                  <canvas id="forecastChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Report Summary Cards -->
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <div class="card bg-info text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Total</h5>
+                    <h2 class="display-6">$<span id="reportTotal">0.00</span></h2>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="card bg-success text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Average/Month</h5>
+                    <h2 class="display-6">$<span id="reportAverage">0.00</span></h2>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="card bg-warning text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Highest Month</h5>
+                    <h2 class="display-6">$<span id="reportHighest">0.00</span></h2>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="card bg-danger text-white">
+                  <div class="card-body">
+                    <h5 class="card-title">Current Month</h5>
+                    <h2 class="display-6">$<span id="reportCurrent">0.00</span></h2>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-end mt-3">
+              <button class="btn btn-success me-2" onclick="exportReport('pdf')"><i class="fas fa-file-pdf"></i> Export PDF</button>
+              <button class="btn btn-primary me-2" onclick="exportReport('excel')"><i class="fas fa-file-excel"></i> Export Excel</button>
+              <button class="btn btn-info" onclick="exportReport('csv')"><i class="fas fa-file-csv"></i> Export CSV</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Records Table -->
-    <div class="table-responsive mt-3">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Site</th>
-            <th>Expense Done By</th>
-            <th>Category</th>
-            <th>Type</th>
-            <th>Details</th>
-            <th>Amount</th>
-            <th>Record Type</th>
-          </tr>
-        </thead>
-        <tbody id="recordsTableBody">
-          <tr><td colspan="8" class="text-center">Loading records...</td></tr>
-        </tbody>
-      </table>
+    <!-- Notification Modal -->
+    <div class="modal fade" id="notificationModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title"><i class="fas fa-bell"></i> Notifications</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group" id="notificationList">
+              <!-- Notifications will be populated here -->
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="markAllReadBtn">Mark All as Read</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination">
-      <button class="btn btn-outline-light" id="prevPage" onclick="prevPage()">⬅ Previous</button>
-      <span id="pageInfo" class="mx-3 text-light">Page 1</span>
-      <button class="btn btn-outline-light" id="nextPage" onclick="nextPage()">Next ➡</button>
+    <!-- Expense Detail Modal -->
+    <div class="modal fade" id="expenseDetailModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title"><i class="fas fa-file-invoice-dollar"></i> Expense Details</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="expenseDetailBody">
+            <!-- Expense details will be populated here -->
+          </div>
+          <div class="modal-footer" id="expenseDetailFooter">
+            <!-- Action buttons will be populated here based on user role and expense status -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Bootstrap and other JS libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    let allRecords = [];
-    let currentPage = 1;
-    const recordsPerPage = 10;
-
-function initializeExpenseRecords(site, expenseDoneBy) {
-    console.log("🚀 initializeExpenseRecords() started...");
-
-    if (!site || !expenseDoneBy) {
-      let urlParams = new URLSearchParams(window.location.search);
-      site = urlParams.get("site") || "";
-      expenseDoneBy = urlParams.get("expenseDoneBy") || "";
-    }
-
-    console.log("📌 Extracted Parameters:", { site, expenseDoneBy });
-
-    if (!site || !expenseDoneBy) {
-      document.getElementById("recordsTableBody").innerHTML =
-        "<tr><td colspan='8' class='text-danger text-center'>❌ Error: Missing required parameters.</td></tr>";
-      console.error("❌ ERROR: Site or Expense Done By is missing!");
-      return;
-    }
-
-    google.script.run.withSuccessHandler(displayRecordsTable)
-      .getFilteredRecords(site, expenseDoneBy, "", 1, 10);
-  }
-
-
-    function filterRecords() {
-      let urlParams = new URLSearchParams(window.location.search);
-      let site = urlParams.get("site") || "";
-      let expenseDoneBy = urlParams.get("expenseDoneBy") || "";
-      let fromDate = document.getElementById("fromDate").value || "";
-
-      console.log(`🚀 Fetching filtered records for Site: ${site}, Expense Done By: ${expenseDoneBy}, From Date: ${fromDate}`);
-
-      google.script.run.withSuccessHandler(displayRecordsTable)
-        .getFilteredRecords(site, expenseDoneBy, fromDate, 1, recordsPerPage);
-    }
-
-    function displayRecordsTable(response) {
-      let table = document.getElementById("recordsTableBody");
-      table.innerHTML = "";
-
-      if (!response.records || response.records.length === 0) {
-        table.innerHTML = "<tr><td colspan='8'>❌ No records found.</td></tr>";
-        return;
+    // Sample data for demonstration
+    const demoExpenses = [
+      {
+        id: 1,
+        date: '2025-02-28',
+        site: 'Site A',
+        engineer: 'John Doe',
+        category: 'Materials',
+        description: 'Concrete for foundation',
+        amount: 2500.00,
+        status: 'Approved',
+        receipt: 'receipt1.jpg'
+      },
+      {
+        id: 2,
+        date: '2025-03-01',
+        site: 'Site B',
+        engineer: 'Jane Smith',
+        category: 'Equipment',
+        description: 'Excavator rental',
+        amount: 1200.00,
+        status: 'Pending',
+        receipt: 'receipt2.jpg'
+      },
+      {
+        id: 3,
+        date: '2025-03-02',
+        site: 'Site A',
+        engineer: 'John Doe',
+        category: 'Labor',
+        description: 'Electrical work',
+        amount: 850.50,
+        status: 'Rejected',
+        receipt: 'receipt3.jpg'
+      },
+      {
+        id: 4,
+        date: '2025-03-01',
+        site: 'Site C',
+        engineer: 'Jane Smith',
+        category: 'Transportation',
+        description: 'Material delivery',
+        amount: 350.75,
+        status: 'Approved',
+        receipt: 'receipt4.jpg'
+      },
+      {
+        id: 5,
+        date: '2025-02-25',
+        site: 'Site B',
+        engineer: 'John Doe',
+        category: 'Materials',
+        description: 'Steel reinforcement',
+        amount: 1850.25,
+        status: 'Approved',
+        receipt: 'receipt5.jpg'
+      },
+      {
+        id: 6,
+        date: '2025-03-02',
+        site: 'Site A',
+        engineer: 'Jane Smith',
+        category: 'Equipment',
+        description: 'Power tools',
+        amount: 475.00,
+        status: 'Pending',
+        receipt: 'receipt6.jpg'
+      },
+      {
+        id: 7,
+        date: '2025-02-27',
+        site: 'Site C',
+        engineer: 'John Doe',
+        category: 'Other',
+        description: 'Site security',
+        amount: 680.30,
+        status: 'Approved',
+        receipt: 'receipt7.jpg'
+      },
+      {
+        id: 8,
+        date: '2025-03-01',
+        site: 'Site B',
+        engineer: 'Jane Smith',
+        category: 'Materials',
+        description: 'Lumber supplies',
+        amount: 920.45,
+        status: 'Approved',
+        receipt: 'receipt8.jpg'
+      },
+      {
+        id: 9,
+        date: '2025-03-02',
+        site: 'Site A',
+        engineer: 'John Doe',
+        category: 'Labor',
+        description: 'Plumbing work',
+        amount: 750.00,
+        status: 'Pending',
+        receipt: 'receipt9.jpg'
+      },
+      {
+        id: 10,
+        date: '2025-02-26',
+        site: 'Site C',
+        engineer: 'Jane Smith',
+        category: 'Equipment',
+        description: 'Generator rental',
+        amount: 580.20,
+        status: 'Rejected',
+        receipt: 'receipt10.jpg'
       }
+    ];
 
-      allRecords = response.records; // Store records for pagination
-      currentPage = 1;
-      updatePagination();
-      showCurrentPage();
-    }
+    // Notification data
+    const demoNotifications = [
+      {
+        id: 1,
+        message: 'New expense request submitted by Jane Smith',
+        date: '2025-03-02',
+        read: false
+      },
+      {
+        id: 2,
+        message: 'Your expense request has been approved',
+        date: '2025-03-01',
+        read: false
+      },
+      {
+        id: 3,
+        message: 'Budget warning: Site B is at 85% of allocated budget',
+        date: '2025-02-28',
+        read: true
+      }
+    ];
 
-    function updatePagination() {
-      document.getElementById("pageInfo").innerText = `Page ${currentPage} of ${Math.ceil(allRecords.length / recordsPerPage)}`;
-    }
+    // Global variables
+    let currentUser = 'John Doe';
+    let currentPage = 1;
+    let recordsPerPage = 5;
+    let filteredExpenses = [...demoExpenses];
 
-    function showCurrentPage() {
-      let table = document.getElementById("recordsTableBody");
-      table.innerHTML = "";
-      let start = (currentPage - 1) * recordsPerPage;
-      let end = start + recordsPerPage;
-      let pageRecords = allRecords.slice(start, end);
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set current user
+      document.getElementById('currentUser').textContent = currentUser;
+      
+      // Initialize navigation
+      initNavigation();
+      
+      // Load initial data
+      loadExpenseData();
+      updateNotificationCounter();
+      initializeCharts();
+      
+      // Initialize event listeners
+      document.getElementById('expenseForm').addEventListener('submit', handleExpenseSubmit);
+      document.getElementById('expenseReceipt').addEventListener('change', handleFileUpload);
+      
+      // Initialize Bootstrap tooltips
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+      
+      // Initialize Bootstrap modals
+      const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'));
+      document.getElementById('notificationBtn').addEventListener('click', function() {
+        loadNotifications();
+        notificationModal.show();
+      });
+      
+      document.getElementById('markAllReadBtn').addEventListener('click', markAllNotificationsRead);
+    });
 
-      pageRecords.forEach(row => {
-        let tr = document.createElement("tr");
-        row.forEach(cell => {
-          let td = document.createElement("td");
-          td.textContent = cell;
-          tr.appendChild(td);
-        });
-        table.appendChild(tr);
+    // Navigation functions
+    function initNavigation() {
+      document.getElementById('dashboardLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        showSection('dashboardSection');
+      });
+      
+      document.getElementById('expenseFormLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        showSection('expenseFormSection');
+      });
+      
+      document.getElementById('reportsLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        showSection('reportsSection');
+        generateReport();
       });
     }
 
+    function showSection(sectionId) {
+      // Hide all sections
+      document.getElementById('dashboardSection').style.display = 'none';
+      document.getElementById('expenseFormSection').style.display = 'none';
+      document.getElementById('reportsSection').style.display = 'none';
+      
+      // Show the selected section
+      document.getElementById(sectionId).style.display = 'block';
+      
+      // Update navigation active status
+      document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+      if (sectionId === 'dashboardSection') {
+        document.getElementById('dashboardLink').classList.add('active');
+      } else if (sectionId === 'expenseFormSection') {
+        document.getElementById('expenseFormLink').classList.add('active');
+      } else if (sectionId === 'reportsSection') {
+        document.getElementById('reportsLink').classList.add('active');
+      }
+    }
+
+    // Load expense data and update UI elements
+    function loadExpenseData() {
+      updateExpenseSummary();
+      displayRecords();
+    }
+
+    function updateExpenseSummary() {
+      // Calculate summary data
+      const total = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+      const approved = filteredExpenses
+        .filter(expense => expense.status === 'Approved')
+        .reduce((sum, expense) => sum + expense.amount, 0);
+      const pending = filteredExpenses
+        .filter(expense => expense.status === 'Pending')
+        .reduce((sum, expense) => sum + expense.amount, 0);
+      const pendingCount = filteredExpenses.filter(expense => expense.status === 'Pending').length;
+      
+      // Update the UI
+      document.getElementById('totalExpenses').textContent = formatCurrency(total);
+      document.getElementById('approvedExpenses').textContent = formatCurrency(approved);
+      document.getElementById('pendingExpenses').textContent = formatCurrency(pending);
+      document.getElementById('pendingCount').textContent = pendingCount;
+    }
+
+    function displayRecords() {
+      const tableBody = document.getElementById('recordsTableBody');
+      tableBody.innerHTML = '';
+      
+      // Calculate pagination
+      const start = (currentPage - 1) * recordsPerPage;
+      const end = start + recordsPerPage;
+      const paginatedRecords = filteredExpenses.slice(start, end);
+      
+      // Update page info
+      document.getElementById('pageInfo').textContent = Page ${currentPage} of ${Math.ceil(filteredExpenses.length / recordsPerPage)};
+      
+      // Disable/enable pagination buttons
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      document.getElementById('nextPage').disabled = currentPage >= Math.ceil(filteredExpenses.length / recordsPerPage);
+      
+      // Add records to table
+      paginatedRecords.forEach(expense => {
+        const row = document.createElement('tr');
+        
+        // Format status badge
+        let statusBadge = '';
+        if (expense.status === 'Approved') {
+          statusBadge = '<span class="badge badge-approved">Approved</span>';
+        } else if (expense.status === 'Pending') {
+          statusBadge = '<span class="badge badge-pending">Pending</span>';
+        } else if (expense.status === 'Rejected') {
+          statusBadge = '<span class="badge badge-rejected">Rejected</span>';
+        }
+        
+        row.innerHTML = `
+          <td>${formatDate(expense.date)}</td>
+          <td>${expense.site}</td>
+          <td>${expense.engineer}</td>
+          <td>${expense.category}</td>
+          <td>${expense.description}</td>
+          <td>${formatCurrency(expense.amount)}</td>
+          <td>${statusBadge}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewExpenseDetail(${expense.id})">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" onclick="editExpense(${expense.id})">
+              <i class="fas fa-edit"></i>
+            </button>
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Pagination functions
     function nextPage() {
-      if (currentPage * recordsPerPage < allRecords.length) {
+      if (currentPage < Math.ceil(filteredExpenses.length / recordsPerPage)) {
         currentPage++;
-        updatePagination();
-        showCurrentPage();
+        displayRecords();
       }
     }
 
     function prevPage() {
       if (currentPage > 1) {
         currentPage--;
-        updatePagination();
-        showCurrentPage();
+        displayRecords();
       }
     }
 
-
-    window.onload = function {
-      initializeExpenseRecords ();
-    }
-  </script>
-
-</body>
-</html>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>Expense Entry</title>
-
-  <!-- ✅ Include Bootstrap 5 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-
-  <script>
-    let siteData = {};
-    let expenseIndex = 0;
-
-     function fetchDropdownData(callback) {
-    google.script.run.withSuccessHandler(function(data) {
-      if (!data || !data.sites || !data.expenseBy) {
-        console.error("❌ ERROR: Missing site dropdown data.");
-        return;
-      }
-
-      siteData = data; // ✅ Store the fetched data globally
-      console.log("✅ Site data loaded:", siteData); // ✅ Debugging
-
-      // ✅ Populate Site dropdown
-      let siteDropdown = document.getElementById("site");
-      siteDropdown.innerHTML = data.sites
-        .map(site => `<option value="${site}">${site}</option>`)
-        .join('');
-
-      // ✅ Call the callback function after loading dropdowns
-      if (callback) callback();
-    }).getExpenseDropdownData();
-  }
-
-
-    function updateDependentDropdowns() {
-    let selectedSite = document.getElementById("site").value;
-    console.log("🔄 Updating 'Expense Done By' dropdown for site:", selectedSite);
-
-    let expenseDoneByDropdown = document.getElementById("expenseDoneBy");
-
-    // ✅ Ensure dropdown exists before modifying it
-    if (!expenseDoneByDropdown) {
-      console.warn("⚠️ Warning: 'Expense Done By' dropdown not found in the DOM.");
-      return;
+    // Filter records function
+    function filterRecords() {
+      const siteFilter = document.getElementById('siteFilter').value;
+      const userFilter = document.getElementById('userFilter').value;
+      const fromDate = document.getElementById('fromDate').value;
+      const toDate = document.getElementById('toDate').value;
+      
+      filteredExpenses = demoExpenses.filter(expense => {
+        // Apply site filter
+        if (siteFilter && expense.site !== siteFilter) return false;
+        
+        // Apply user filter
+        if (userFilter && expense.engineer !== userFilter) return false;
+        
+        // Apply date filters
+        if (fromDate && expense.date < fromDate) return false;
+        if (toDate && expense.date > toDate) return false;
+        
+        return true;
+      });
+      
+      // Reset to first page and update display
+      currentPage = 1;
+      loadExpenseData();
     }
 
-    if (!siteData || !siteData.expenseBy || !siteData.expenseBy[selectedSite]) {
-      console.warn("⚠️ Warning: No expense data available for selected site.");
-      expenseDoneByDropdown.innerHTML = '<option value="">No Options Available</option>';
-      return;
+    // Expense form functions
+    function handleExpenseSubmit(e) {
+      e.preventDefault();
+      
+      // Collect form data
+      const newExpense = {
+        id: demoExpenses.length + 1,
+        date: document.getElementById('expenseDate').value,
+        site: document.getElementById('expenseSite').value,
+        engineer: currentUser,
+        category: document.getElementById('expenseCategory').value,
+        description: document.getElementById('expenseDescription').value,
+        amount: parseFloat(document.getElementById('expenseAmount').value),
+        status: 'Pending',
+        receipt: document.getElementById('expenseReceipt').files.length > 0 ? 
+          document.getElementById('expenseReceipt').files[0].name : ''
+      };
+      
+      // Add to expenses array
+      demoExpenses.unshift(newExpense);
+      filteredExpenses = [...demoExpenses];
+      
+      // Update UI
+      loadExpenseData();
+      updateNotificationCounter();
+      
+      // Reset form and return to dashboard
+      document.getElementById('expenseForm').reset();
+      document.getElementById('filePreview').innerHTML = '';
+      showSection('dashboardSection');
+      
+      // Show success message
+      alert('Expense submitted successfully and awaiting approval.');
     }
 
-    // ✅ Populate dropdown with available options
-    expenseDoneByDropdown.innerHTML = siteData.expenseBy[selectedSite]
-      .map(person => `<option value="${person}">${person}</option>`)
-      .join('');
+    function cancelExpenseForm() {
+      document.getElementById('expenseForm').reset();
+      document.getElementById('filePreview').innerHTML = '';
+      showSection('dashboardSection');
+    }
 
-    console.log("✅ 'Expense Done By' dropdown updated:", siteData.expenseBy[selectedSite]);
-  }
-
-    function fetchExpenseCategories(callback) {
-    google.script.run.withSuccessHandler(function(categories) {
-      if (categories.length > 0) {
-        if (callback) {
-          callback(categories); // Apply categories when dynamically adding expenses
+    function handleFileUpload() {
+      const fileInput = document.getElementById('expenseReceipt');
+      const filePreview = document.getElementById('filePreview');
+      const fileUploadButton = document.getElementById('fileUploadButton');
+      
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileUploadButton.querySelector('span').textContent = file.name;
+        
+        if (file.type.includes('image')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            filePreview.innerHTML = `
+              <div class="border rounded p-2">
+                <img src="${e.target.result}" alt="Receipt preview" style="max-height: 150px;" class="d-block mx-auto">
+                <small class="text-muted d-block text-center mt-1">${file.name} (${formatFileSize(file.size)})</small>
+              </div>
+            `;
+          };
+          reader.readAsDataURL(file);
         } else {
-          document.getElementById("expenseCategory").innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+          filePreview.innerHTML = `
+            <div class="border rounded p-2 text-center">
+              <i class="fas fa-file-pdf fa-2x text-danger"></i>
+              <small class="text-muted d-block mt-1">${file.name} (${formatFileSize(file.size)})</small>
+            </div>
+          `;
         }
+      } else {
+        fileUploadButton.querySelector('span').textContent = 'Choose file';
+        filePreview.innerHTML = '';
       }
-    }).getExpenseCategories();
     }
 
-
-    function addExpenseEntry() {
-    let container = document.getElementById("expenseContainer");
-    expenseIndex++;
-
-    let expenseDiv = document.createElement("div");
-    expenseDiv.className = "card p-3 mb-3";
-    expenseDiv.setAttribute("id", `expense-${expenseIndex}`);
-    expenseDiv.innerHTML = `
-      <div class="d-flex justify-content-between">
-        <h5 class="card-title">Expense ${expenseIndex}</h5>
-        <button class="btn btn-danger btn-sm" onclick="removeExpense('expense-${expenseIndex}')">✖</button>
-      </div>
-
-      <div class="row mb-2">
-        <div class="col-md-4">
-          <label class="form-label">Expense Category:</label>
-          <select name="expenseCategory" class="form-select"></select>
-        </div>
-
-        <div class="col-md-4">
-          <label class="form-label">Type:</label>
-          <div class="d-flex align-items-center">
-            <input type="radio" name="type-${expenseIndex}" value="Cash" class="me-1"> Cash
-            <input type="radio" name="type-${expenseIndex}" value="GPay/Bank Transfer" class="ms-3 me-1"> GPay/Bank Transfer
+    // Expense detail functions
+    function viewExpenseDetail(id) {
+      const expense = demoExpenses.find(e => e.id === id);
+      if (!expense) return;
+      
+      const modalBody = document.getElementById('expenseDetailBody');
+      const modalFooter = document.getElementById('expenseDetailFooter');
+      
+      modalBody.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Date:</strong> ${formatDate(expense.date)}</p>
+            <p><strong>Site:</strong> ${expense.site}</p>
+            <p><strong>Engineer:</strong> ${expense.engineer}</p>
+            <p><strong>Category:</strong> ${expense.category}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Amount:</strong> ${formatCurrency(expense.amount)}</p>
+            <p><strong>Status:</strong> <span class="badge badge-${expense.status.toLowerCase()}">${expense.status}</span></p>
+            <p><strong>Submitted on:</strong> ${formatDate(expense.date)}</p>
           </div>
         </div>
-
-        <div class="col-md-4">
-          <label class="form-label">Amount:</label>
-          <input type="number" name="amount" class="form-control" required>
+        <hr>
+        <div class="row">
+          <div class="col-12">
+            <p><strong>Description:</strong></p>
+            <p>${expense.description}</p>
+          </div>
         </div>
-      </div>
-
-      <div class="mb-2">
-        <label class="form-label">Details:</label>
-        <textarea name="details" class="form-control" rows="3"></textarea>
-      </div>
-    `;
-
-    container.appendChild(expenseDiv);
-
-    // ✅ Populate the Expense Category dropdown for this new expense entry
-    fetchExpenseCategories(function(categories) {
-      let categoryDropdown = expenseDiv.querySelector("select[name='expenseCategory']");
-      categoryDropdown.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-    });
-  }
-
-
-    function removeExpense(expenseId) {
-      document.getElementById(expenseId).remove();
-    }
-
- function submitExpenseForm() {
-    let date = document.getElementById("date").value;
-    let site = document.getElementById("site").value;
-    let expenseDoneBy = document.getElementById("expenseDoneBy").value;
-
-  // ✅ Clear previous error messages
-  let errorMessageDiv = document.getElementById("errorMessage");
-  if (errorMessageDiv){
-    errorMessageDiv.innerHTML = " Your error message here";
-  }
-    errorMessageDiv.style.display = "none";
-    errorMessageDiv.innerHTML = "";
-
-
-    if (!date || !site || !expenseDoneBy) {
-      alert("Please fill all required fields.");
-      return;
-    }
-
-    let expenseEntries = document.querySelectorAll(".card");
-     if (expenseEntries.length === 0) {
-      showError("Please add at least one expense.");
-      return;
-    }
-
-    let expenses = [];
-    let hasEmptyField = false;
-
-    expenseEntries.forEach(entry => {
-      let category = entry.querySelector("select[name='expenseCategory']").value;
-      let type = entry.querySelector("input[name^='type-']:checked")?.value || "Not Selected";
-      let details = entry.querySelector("textarea[name='details']").value;
-      let amount = entry.querySelector("input[name='amount']").value;
-
-      if (!category || !type || !details || !amount){
-        hasEmptyField = true;
-      }
-
-      expenses.push({ category, type, details, amount });
-    });
-
-    if (hasEmptyField) {
-      showError("Please fill in all expense detials before submitting");
-      return;
-    }
-
-    let expenseData = { date, site, expenseDoneBy, expenses };
-
-    // ✅ Disable all fields and show loading message
-    disableAllFields(true);
-    document.getElementById("loadingMessage").style.display = "block";
-
-      google.script.run.withSuccessHandler(response => {
-      if (response.status === "success") {
-        alert(response.message);
-        resetForm();
+        <div class="row mt-3">
+          <div class="col-12">
+            <p><strong>Receipt:</strong></p>
+            <div class="text-center border p-3">
+              <i class="fas fa-file-image fa-3x text-primary"></i>
+              <p class="mt-2 mb-0">${expense.receipt}</p>
+              <small class="text-muted">Click to view full image</small>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Add appropriate action buttons based on status
+      if (expense.status === 'Pending') {
+        modalFooter.innerHTML = `
+          <button type="button" class="btn btn-success" onclick="updateExpenseStatus(${expense.id}, 'Approved')">
+            <i class="fas fa-check"></i> Approve
+          </button>
+          <button type="button" class="btn btn-danger" onclick="updateExpenseStatus(${expense.id}, 'Rejected')">
+            <i class="fas fa-times"></i> Reject
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        `;
       } else {
-        showError(response.message);
+        modalFooter.innerHTML = `
+          <button type="button" class="btn btn-primary" onclick="printExpenseDetail(${expense.id})">
+            <i class="fas fa-print"></i> Print
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        `;
       }
-      disableAllFields(false);
-      document.getElementById("loadingMessage").style.display = "none";
-    }).withFailureHandler(error => {
-      showError("Error submitting form: " + error.message);
-      disableAllFields(false);
-      document.getElementById("loadingMessage").style.display = "none";
-    }).saveExpenseData(expenseData);
-  }
-
-
-  function disableAllFields(disable) {
-    document.querySelectorAll("input, select, button").forEach(field => {
-      field.disabled = disable;
-    });
-  }
-
-  function resetForm() {
-    console.log(" Resetting form");
-    document.getElementById("date").value = new Date().toISOString().split('T')[0];
-    document.getElementById("site").selectedIndex = 0;
-    document.getElementById("expenseDoneBy").selectedIndex = 0;
-    
-    //document.getElementById("expenseCategory").selectedIndex = 0;
-    //document.querySelectorAll("input[name^='type']").forEach(radio => radio.checked = false);
-    //document.getElementById("details").value = "";
-    //document.getElementById("amount").value = "";
-    document.getElementById("expenseContainer").innerHTML = "";
-
-    document.getElementById("loadingMessage").style.display = "none";
-    disableAllFields(false);
-  }
-
-
- function showError(message) {
-    let errorMessageDiv = document.getElementById("errorMessage");
-
-    if (!errorMessageDiv) {
-      console.warn("Error message div not found");
-      return; // ✅ Prevent error if div is missing
+      
+      // Show the modal
+      const expenseDetailModal = new bootstrap.Modal(document.getElementById('expenseDetailModal'));
+      expenseDetailModal.show();
     }
 
-    console.log("Showing error message:", message);
-    errorMessageDiv.innerHTML = `<p>${message}</p>`;
-    errorMessageDiv.style.display = "block";
-  }
-
-  function fetchExpenseVsCredit() {
-    let site = document.getElementById("site").value;
-    let expenseDoneBy = document.getElementById("expenseDoneBy").value;
-
-    if (!site || !expenseDoneBy) {
-      alert("Please select Site and Expense Done By first.");
-      return;
+    function updateExpenseStatus(id, status) {
+      // Find the expense and update status
+      const expenseIndex = demoExpenses.findIndex(e => e.id === id);
+      if (expenseIndex !== -1) {
+        demoExpenses[expenseIndex].status = status;
+        
+        // Update filtered expenses if needed
+        filteredExpenses = [...demoExpenses];
+        
+        // Update UI
+        loadExpenseData();
+        
+        // Close the modal
+        bootstrap.Modal.getInstance(document.getElementById('expenseDetailModal')).hide();
+        
+        // Show confirmation
+        alert(Expense has been ${status.toLowerCase()}.);
+      }
     }
 
-    console.log(`🔄 Fetching Credit & Expenses for Site: ${site}, Done By: ${expenseDoneBy}`);
-
-    google.script.run.withSuccessHandler(displayExpenseVsCredit)
-      .getExpenseVsCredit(site, expenseDoneBy);
-  }
-
-
-  function displayExpenseVsCredit(response) {
-    let expenseCreditTable = document.getElementById("expenseCreditTable");
-
-    if (response.status === "error") {
-      expenseCreditTable.innerHTML = `<p style="color: red;">${response.message}</p>`;
-      return;
+    function editExpense(id) {
+      const expense = demoExpenses.find(e => e.id === id);
+      if (!expense) return;
+      
+      // Populate form with expense data
+      document.getElementById('expenseDate').value = expense.date;
+      document.getElementById('expenseSite').value = expense.site;
+      document.getElementById('expenseCategory').value = expense.category;
+      document.getElementById('expenseAmount').value = expense.amount;
+      document.getElementById('expenseDescription').value = expense.description;
+      
+      // Show the form section
+      showSection('expenseFormSection');
     }
 
-    let tableHtml = `<table class="table table-bordered mt-3">
-      <thead>
-        <tr>
-          <th>Site</th>
-          <th>Expense Done By</th>
-          <th>Credited Amount</th>
-          <th>Total Expenses</th>
-          <th>Balance Remaining</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>${response.site}</td>
-          <td>${response.expenseDoneBy}</td>
-          <td>₹ ${response.creditedAmount.toFixed(2)}</td>
-          <td>₹ ${response.totalExpenses.toFixed(2)}</td>
-          <td><strong style="color: ${response.balanceRemaining < 0 ? 'red' : 'green'};">
-            ₹ ${response.balanceRemaining.toFixed(2)}
-          </strong></td>
-        </tr>
-      </tbody>
-    </table>`;
-
-    expenseCreditTable.innerHTML = tableHtml;
-  }
-
-
-
-
-
-
-
- document.addEventListener("DOMContentLoaded", function () {
-    console.log("🚀 Page Fully Loaded - Initializing Form");
-
-    // ✅ Get references to dropdown elements
-    let siteDropdown = document.getElementById("site");
-    let expenseDoneByDropdown = document.getElementById("expenseDoneBy");
-
-    // ✅ Ensure dropdowns exist before modifying them
-    if (!siteDropdown || !expenseDoneByDropdown) {
-      console.error("❌ ERROR: One or more dropdown elements are missing in the HTML.");
-      return; // ✅ Stop execution if dropdowns are missing
+    // Notification functions
+    function updateNotificationCounter() {
+      const unreadCount = demoNotifications.filter(n => !n.read).length;
+      document.getElementById('notificationCounter').textContent = unreadCount;
+      document.getElementById('notificationCounter').style.display = unreadCount > 0 ? 'flex' : 'none';
     }
 
-    // ✅ Set today's date automatically
-    let today = new Date().toISOString().split('T')[0];
-    let dateField = document.getElementById("date");
-    if (dateField) {
-      dateField.value = today;
-    } else {
-      console.warn("⚠️ Warning: Date field not found.");
-    }
-
-    // ✅ Load dropdowns first, then update dependent ones
-    fetchDropdownData(() => {
-      console.log("✅ Site dropdowns loaded successfully.");
-
-      // ✅ Add event listener for site selection change
-      siteDropdown.addEventListener("change", updateDependentDropdowns);
-
-      // ✅ Ensure dependent dropdowns are updated on page load
-      updateDependentDropdowns();
-    });
-
-    fetchExpenseCategories();
-  });
-
-
- var scriptUrl = "<?= scriptUrl ?>";  // ✅ Ensure scriptUrl is passed correctly
-    console.log("✅ Web App URL:", scriptUrl); // Debugging log
-
-    function redirectToRecordsPage(pagename) {
-      let site = document.getElementById("site").value;
-      let expenseDoneBy = document.getElementById("expenseDoneBy").value;
-
-      if (!site || !expenseDoneBy) {
-        alert("⚠️ Please select Site and Expense Done By before continuing.");
+    function loadNotifications() {
+      const notificationList = document.getElementById('notificationList');
+      notificationList.innerHTML = '';
+      
+      if (demoNotifications.length === 0) {
+        notificationList.innerHTML = '<li class="list-group-item text-center">No notifications</li>';
         return;
       }
-
-      // ✅ Store values in sessionStorage for use in ExpenseRecords.html
-      sessionStorage.setItem("selectedSite", site);
-      sessionStorage.setItem("selectedExpenseDoneBy", expenseDoneBy);
-
-      // ✅ Debugging alert before redirection
-      alert("🔄 Redirecting to ExpenseRecords page...\n" +
-            "📌 Selected Site: " + site + "\n" +
-            "📌 Expense Done By: " + expenseDoneBy + "\n" +
-            "📌 Redirect URL: " + scriptUrl + "?page=ExpenseRecords");
-
-      // ✅ Navigate to ExpenseRecords.html via Apps Script Web App URL
       
-        window.location.href = scriptUrl + "?page" + pagename;
-      //window.location.href = scriptUrl + "?page=records";
-    }
-
- var scriptUrl = "<?= scriptUrl ?>";  // ✅ Retrieve Web App URL from Apps Script
-
-    
-    function loadExpenseRecords() {
-    let site = document.getElementById("site").value;
-    let expenseDoneBy = document.getElementById("expenseDoneBy").value;
-    let fromDate = document.getElementById("fromDate") ? document.getElementById("fromDate").value : "";
-
-    if (!site || !expenseDoneBy) {
-      alert("⚠️ Please select a site and expense done by.");
-      return;
-    }
-
-    console.log(`📌 Fetching records for Site=${site}, Expense Done By=${expenseDoneBy}, From Date=${fromDate}`);
-
-    let container = document.getElementById("expenseRecordsContainer");
-    container.style.display = "block"; // Show the records container
-    let tableBody = document.getElementById("recordsTableBody");
-    tableBody.innerHTML = "<tr><td colspan='8' class='text-center'>🔄 Loading records...</td></tr>";
-
-    google.script.run.withSuccessHandler(displayRecordsTable)
-      .getFilteredRecords(site, expenseDoneBy, fromDate, 1, 10);
-  }
-
-  function displayRecordsTable(response) {
-    let table = document.getElementById("recordsTableBody");
-    table.innerHTML = "";
-
-    if (!response.records || response.records.length === 0) {
-      table.innerHTML = "<tr><td colspan='8'>❌ No records found.</td></tr>";
-      return;
-    }
-
-    response.records.forEach(row => {
-      let tr = document.createElement("tr");
-      row.forEach(cell => {
-        let td = document.createElement("td");
-        td.textContent = cell;
-        tr.appendChild(td);
+      demoNotifications.forEach(notification => {
+        const listItem = document.createElement('li');
+        listItem.className = list-group-item ${notification.read ? '' : 'bg-light'};
+        
+        listItem.innerHTML = `
+          <div class="d-flex justify-content-between">
+            <div>
+              <p class="mb-1 ${notification.read ? '' : 'fw-bold'}">${notification.message}</p>
+              <small class="text-muted">${notification.date}</small>
+            </div>
+            ${notification.read ? '' : '<span class="badge bg-primary">New</span>'}
+          </div>
+        `;
+        
+        notificationList.appendChild(listItem);
       });
-      table.appendChild(tr);
-    });
+    }
 
-    document.getElementById("pageInfo").innerText = `Page 1 of ${response.totalPages}`;
-  }
-</script>
+    function markAllNotificationsRead() {
+      demoNotifications.forEach(notification => {
+        notification.read = true;
+      });
+      
+      updateNotificationCounter();
+      loadNotifications();
+    }
 
+    // Chart initialization
+    function initializeCharts() {
+      // Category chart
+      const categoryData = {
+        labels: ['Materials', 'Labor', 'Equipment', 'Transportation', 'Other'],
+        datasets: [{
+          label: 'Expenses by Category',
+          data: [5270.70, 1600.50, 2255.20, 350.75, 680.30],
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.8)',
+            'rgba(54, 162, 235, 0.8)',
+            'rgba(255, 206, 86, 0.8)',
+            'rgba(75, 192, 192, 0.8)',
+            'rgba(153, 102, 255, 0.8)'
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)'
+          ],
+          borderWidth: 1
+        }]
+      };
+      
+      const categoryChart = new Chart(
+        document.getElementById('categoryChart'),
+        {
+          type: 'pie',
+          data: categoryData,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'right',
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed !== null) {
+                      label += formatCurrency(context.parsed);
+                    }
+                    return label;
+                  }
+                }
+              }
+            }
+          },
+        }
+      );
+      
+      // Monthly chart
+      const monthlyData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Site A',
+          data: [8500, 11200, 9800, 12500, 10300, 9200],
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          tension: 0.4
+        },
+        {
+          label: 'Site B',
+          data: [7200, 8900, 10500, 9700, 11800, 10900],
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          tension: 0.4
+        },
+        {
+          label: 'Site C',
+          data: [6500, 7800, 9200, 8700, 10200, 9800],
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.4
+        }]
+      };
+      
+      const monthlyChart = new Chart(
+        document.getElementById('monthlyChart'),
+        {
+          type: 'line',
+          data: monthlyData,
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                      label += formatCurrency(context.parsed.y);
+                    }
+                    return label;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false
+              }
+            }
+          },
+        }
+      );
+    }
 
+    // Report generation
+    function generateReport() {
+      // Initialize trend and forecast charts
+      const trendData = {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Expenses',
+          data: [22200, 27900, 29500, 30900, 32300, 29900],
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          fill: true,
+          tension: 0.4
+        }]
+      };
+      
+      const trendChart = new Chart(
+        document.getElementById('trendChart'),
+        {
+          type: 'line',
+          data: trendData,
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                      label += formatCurrency(context.parsed.y);
+                    }
+                    return label;
+                  }
+                }
+              }
+            }
+          },
+        }
+      );
+      
+      const forecastData = {
+        labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+        datasets: [{
+          label: 'Actual',
+          data: [29900, null, null, null, null, null],
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          pointRadius: 5
+        },
+        {
+          label: 'Forecast',
+          data: [29900, 31500, 33200, 34800, 32500, 30900],
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderDash: [5, 5]
+        }]
+      };
+      
+      const forecastChart = new Chart(
+        document.getElementById('forecastChart'),
+        {
+          type: 'line',
+          data: forecastData,
+          options: {
+            responsive: true,
+            plugins: {
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                      label += formatCurrency(context.parsed.y);
+                    }
+                    return label;
+                  }
+                }
+              }
+            }
+          },
+        }
+      );
+      
+      // Update summary statistics
+      document.getElementById('reportTotal').textContent = '172,700.00';
+      document.getElementById('reportAverage').textContent = '28,783.33';
+      document.getElementById('reportHighest').textContent = '32,300.00';
+      document.getElementById('reportCurrent').textContent = '29,900.00';
+    }
 
+    // Utility functions
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+      }).format(amount);
+    }
 
+    function formatDate(dateString) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('en-US', options);
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' bytes';
+      else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      else return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    function exportData() {
+      alert('Data export functionality would download expense data in CSV/Excel format.');
+    }
+
+    function exportReport(format) {
+      alert(Report export functionality would download report in ${format.toUpperCase()} format.);
+    }
+
+    function printExpenseDetail(id) {
+      alert('Print functionality would open a print dialog for the expense details.');
+    }
   </script>
-</head>
-<body>
-
-
-
-  <div class="container mt-4">
-    <h2 class="text-center">Expense Entry</h2>
-
-    <div class="row mb-3">
-      <div class="col-md-4">
-        <label class="form-label">Date:</label>
-        <input type="date" id="date" class="form-control">
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">Site:</label>
-        <select id="site" class="form-select"></select>
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">Expense Done By:</label>
-        <select id="expenseDoneBy" class="form-select"></select>
-      </div>
-    <div id="expenseCreditTable" class="mt-3"></div>
- 
-    <button class="btn btn-primary w-100 mt-2" onclick="fetchExpenseVsCredit()">Load Credit Vs Expenses</button>
-
-
-    <!-- ✅ Button to Load Expense Records in Same Page -->
-<button class="btn btn-info w-100 mt-2" onclick="loadExpenseRecords()">View Expense Records</button>
-
-
-
-    </div>
-
-  <div id="expenseContainer"></div>
-    <button class="btn btn-primary w-100 mt-2" onclick="addExpenseEntry()">+ Add Expense</button>
-    <button class="btn btn-success w-100 mt-2" onclick="submitExpenseForm()">Submit</button>
-  </div>
-
-<!-- ✅ Container for Expense Records -->
-
-
-<div id="expenseRecordsContainer" style="display: none; padding: 10px; border: 1px solid #ccc; margin-top: 20px;">
-    <iframe id="expenseRecordsFrame" style="width: 100%; height: 500px; border: none;"></iframe>
-</div>
-
-
-    <p id="loadingMessage" style="display: none; text-align: center; color: red; font-weight: bold;">
-  Submitting, please wait...
-    </p>
-
-    <div id="errorMessage" style="display: none; color: white; background: red; padding: 10px; text-align: center; margin-top: 10px; border-radius: 5px;">
-    </div>
-
-<!-- View Records Button -->
-<button class="btn btn-primary mt-3" onclick="loadExpenseRecords()">📊 View Expense Records</button>
-
-<!-- Container for Expense Records (Initially Hidden) -->
-<div id="expenseRecordsContainer" class="mt-4" style="display: none;">
-  <h3 class="text-light">Expense & Credit Records</h3>
-  
-  <!-- From Date Filter -->
-  <div class="row mt-3">
-    <div class="col-md-4">
-      <label for="fromDate">From Date:</label>
-      <input type="date" id="fromDate" class="form-control">
-    </div>
-    <div class="col-md-4">
-      <button class="btn btn-success mt-4" onclick="loadExpenseRecords()">🔍 Apply Filter</button>
-    </div>
-  </div>
-
-  <!-- Table to Display Records -->
-  <div class="table-responsive mt-3">
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Site</th>
-          <th>Expense Done By</th>
-          <th>Category</th>
-          <th>Type</th>
-          <th>Details</th>
-          <th>Amount</th>
-          <th>Record Type</th>
-        </tr>
-      </thead>
-      <tbody id="recordsTableBody">
-        <tr><td colspan="8" class="text-center">Click "View Expense Records" to load data.</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Pagination Controls -->
-  <div class="pagination">
-    <button class="btn btn-outline-light" id="prevPage" onclick="prevPage()">⬅ Previous</button>
-    <span id="pageInfo" class="mx-3 text-light">Page 1</span>
-    <button class="btn btn-outline-light" id="nextPage" onclick="nextPage()">Next ➡</button>
-  </div>
-</div>
-
-
-
-
 </body>
 </html>
-
-
-
-function doGet(e) {
-  try {
-    Logger.log("🔄 doGet() Started");
-
-    if (!e) {
-      Logger.log("❌ doGet() Error: No parameters received.");
-    } else {
-      Logger.log("🛠 Page Parameter: " + JSON.stringify(e.parameter));
-    }
-
-    let page = e && e.parameter && e.parameter.page ? e.parameter.page : "Expense";
-    Logger.log("📌 Requested Page: " + page);
-
-    let template;
-
-    /*if (page === "records") {
-      Logger.log("✅ Attempting to serve ExpenseRecords.html");
-      template = HtmlService.createTemplateFromFile("ExpenseRecords");
-    } else {
-      Logger.log("✅ Attempting to serve Expense.html");
-      template = HtmlService.createTemplateFromFile("Expense");
-    }*/
-
-
- try {
-      template = HtmlService.createTemplateFromFile(page);
-      Logger.log("✅ Serving " + page + ".html");
-    } catch (error) {
-      Logger.log("❌ Page Not Found: " + page);
-      return HtmlService.createHtmlOutput(`<p style="color: red;">Error: Page '${page}.html' not found.</p>`);
-    }
-
-    // ✅ Dynamically set the Web App URL
-    template.scriptUrl = ScriptApp.getService().getUrl();
-
-    
-    // ✅ If requested via AJAX, return partial HTML (without full page structure)
-    if (e.parameter.ajax) {
-      return template.evaluate().getContent(); // Return only body content
-    }
-
-    return template.evaluate()
-      .setTitle(page.replace(/([A-Z])/g, ' $1').trim())
-      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-
-  } catch (error) {
-    Logger.log("❌ doGet() Error: " + error.message);
-    return HtmlService.createHtmlOutput(`<p style="color: red;">Error loading the page: ${error.message}</p>`);
-  }
-}
-
-
-function getExpenseRecordsHTML() {
-  try {
-    Logger.log("🔄 Loading ExpenseRecords.html");
-
-    // ✅ Load the HTML content of ExpenseRecords.html
-    return HtmlService.createTemplateFromFile("ExpenseRecords").evaluate().getContent();
-  } catch (error) {
-    Logger.log("❌ Error loading ExpenseRecords.html: " + error.message);
-    return `<p style="color: red;">Error loading records: ${error.message}</p>`;
-  }
-}
-
-
-function getAllExpenseRecords(site, expenseDoneBy) {
-  const sheet = SpreadsheetApp.openById("YOUR_SHEET_ID").getSheetByName("Expenses");
-  const data = sheet.getDataRange().getValues();
-  const headers = data[0];
-
-  let siteIndex = headers.indexOf("Site");
-  let expenseDoneByIndex = headers.indexOf("Expense Done By");
-
-  let filteredData = data.filter((row, index) => {
-    if (index === 0) return false; // Skip header row
-    return row[siteIndex] === site && row[expenseDoneByIndex] === expenseDoneBy;
-  });
-
-  return filteredData;
-}
-
-
-// ✅ Fetch Sites and Expense Done By
-function getExpenseDropdownData() {
-  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sites");
-  if (!sheet) return { sites: [], expenseBy: {} };
-
-  let data = sheet.getDataRange().getValues();
-  if (data.length <= 1) return { sites: [], expenseBy: {} };
-
-  let sites = [];
-  let expenseBy = {};
-
-  for (let i = 1; i < data.length; i++) {  
-    let site = data[i][0]?.trim();  
-    let person = data[i][1]?.trim();
-
-    if (site) {
-      if (!sites.includes(site)) {
-        sites.push(site);
-        expenseBy[site] = [];
-      }
-      if (person) expenseBy[site].push(person);
-    }
-  }
-  return { sites, expenseBy };
-}
-
-// ✅ Fetch Expense Categories
-function getExpenseCategories() {
-  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Expense Categories");
-  if (!sheet) return [];
-  return sheet.getDataRange().getValues().flat().filter(cat => cat.trim() !== "");
-}
-
-// ✅ Save Data into Google Sheets
-function saveExpenseData(expenseData) {
-  let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Expenses");
-  if (!sheet) return { status: "error", message: "Sheet not found!" };
-
-  expenseData.expenses.forEach(expense => {
-    sheet.appendRow([
-      new Date(), expenseData.date, expenseData.site, expenseData.expenseDoneBy,
-      expense.category, expense.type, expense.details, expense.amount
-    ]);
-  });
-
-  return { status: "success", message: "Expenses saved successfully!" };
-}
-
-
-function getExpenseVsCredit(site, expenseDoneBy) {
-  let ss = SpreadsheetApp.getActiveSpreadsheet();
-  let expenseSheet = ss.getSheetByName("Expenses");
-  let creditSheet = ss.getSheetByName("Credits");
-
-  if (!expenseSheet || !creditSheet) {
-    return { status: "error", message: "Missing Expenses or Credits sheet!" };
-  }
-
-  let expenseData = expenseSheet.getDataRange().getValues();
-  let creditData = creditSheet.getDataRange().getValues();
-
-  let headersExp = expenseData[0]; // Get headers for Expenses
-  let headersCred = creditData[0]; // Get headers for Credits
-
-  let totalExpenses = 0;
-  let creditedAmount = 0;
-
-  // ✅ 1. Calculate Total Expenses for Selected Site & Expense Done By
-  for (let i = 1; i < expenseData.length; i++) {
-    let row = expenseData[i];
-    let rowSite = row[headersExp.indexOf("Site")];
-    let rowExpenseBy = row[headersExp.indexOf("Expense Done By")];
-    let amount = parseFloat(row[headersExp.indexOf("Amount")]) || 0;
-
-    if (rowSite === site && rowExpenseBy === expenseDoneBy) {
-      totalExpenses += amount;
-    }
-  }
-
-  // ✅ 2. Fetch Credited Amount for Selected Site & Expense Done By
-  for (let i = 1; i < creditData.length; i++) {
-    let row = creditData[i];
-    let rowSite = row[headersCred.indexOf("Site")];
-    let rowExpenseBy = row[headersCred.indexOf("Expense Done By")];
-    let amount = parseFloat(row[headersCred.indexOf("Credited Amount")]) || 0;
-
-    if (rowSite === site && rowExpenseBy === expenseDoneBy) {
-      creditedAmount = amount;
-      break; // ✅ We assume only one credited entry per Site & Expense Done By
-    }
-  }
-
-  let balanceRemaining = creditedAmount - totalExpenses;
-
-  return {
-    status: "success",
-    site,
-    expenseDoneBy,
-    creditedAmount,
-    totalExpenses,
-    balanceRemaining
-  };
-}
-
-
-function getAllExpenseRecords(site, expenseDoneBy) {
-  let ss = SpreadsheetApp.getActiveSpreadsheet();
-  let expenseSheet = ss.getSheetByName("Expenses");
-  let creditSheet = ss.getSheetByName("Credits");
-
-  if (!expenseSheet || !creditSheet) {
-    return { status: "error", message: "Missing Expenses or Credits sheet!" };
-  }
-
-  let expenseData = expenseSheet.getDataRange().getValues();
-  let creditData = creditSheet.getDataRange().getValues();
-
-  let headersExp = expenseData[0];
-  let headersCred = creditData[0];
-
-  let records = [];
-
-  for (let i = 1; i < creditData.length; i++) {
-    let row = creditData[i];
-    let rowSite = row[headersCred.indexOf("Site")];
-    let rowExpenseBy = row[headersCred.indexOf("Expense Done By")];
-    let creditedAmount = parseFloat(row[headersCred.indexOf("Credited Amount")]) || 0;
-
-    if (rowSite !== site || rowExpenseBy !== expenseDoneBy) {
-      continue; // ✅ Only include matching records
-    }
-
-    let totalExpenses = 0;
-    for (let j = 1; j < expenseData.length; j++) {
-      let expRow = expenseData[j];
-      if (expRow[headersExp.indexOf("Site")] === rowSite && expRow[headersExp.indexOf("Expense Done By")] === rowExpenseBy) {
-        totalExpenses += parseFloat(expRow[headersExp.indexOf("Amount")]) || 0;
-      }
-    }
-
-    let balanceRemaining = creditedAmount - totalExpenses;
-
-    records.push({
-      date: row[headersCred.indexOf("Date")] || "N/A",
-      site: rowSite,
-      expenseDoneBy: rowExpenseBy,
-      creditedAmount,
-      totalExpenses,
-      balanceRemaining
-    });
-  }
-
-  return { status: "success", data: records };
-}
-
-
-function mergeExpenseAndCreditRecords() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const expensesSheet = ss.getSheetByName("Expenses");
-  const creditsSheet = ss.getSheetByName("Credits");
-  let mergedSheet = ss.getSheetByName("CreditExpense");
-
-  if (!mergedSheet) {
-    mergedSheet = ss.insertSheet("CreditExpense");
-  } else {
-    mergedSheet.clear(); // ✅ Clear old merged data (except headers)
-  }
-
-  // ✅ Headers for Merged Data
-  const headers = ["Date", "Site", "Expense Done By / Petty Cash Sent To", "Category", "Type", "Details / Reference", "Amount", "Record Type"];
-  mergedSheet.appendRow(headers);
-
-  // ✅ Fetch Expense Data
-  const expensesData = expensesSheet.getDataRange().getValues();
-  const expensesFiltered = expensesData.slice(1).map(row => [row[1], row[2], row[3], row[4], row[5], row[6], row[7], "💰 Expense"]);
-
-  // ✅ Fetch Credit Data
-  const creditsData = creditsSheet.getDataRange().getValues();
-  const creditsFiltered = creditsData.slice(1).map(row => [row[0], row[1], row[2], "-", "-", row[4], row[3], "💵 Credit"]);
-
-  // ✅ Combine, Sort by Date (Newest First), and Write to Sheet
-  const mergedData = [...expensesFiltered, ...creditsFiltered].sort((a, b) => new Date(b[0]) - new Date(a[0]));
-  mergedSheet.getRange(2, 1, mergedData.length, mergedData[0].length).setValues(mergedData);
-}
-
-
-function getFilteredRecords(site, expenseDoneBy, fromDate, page, recordsPerPage) {
-  Logger.log(`🚀 Fetching records for: Site=${site}, Expense Done By=${expenseDoneBy}, From Date=${fromDate}`);
-
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("CreditExpense");
-  if (!sheet) {
-    Logger.log("❌ ERROR: 'CreditExpense' sheet not found.");
-    return { records: [], totalPages: 0 };
-  }
-
-  const data = sheet.getDataRange().getValues();
-  if (data.length <= 1) {
-    Logger.log("❌ ERROR: No records found in 'CreditExpense' sheet.");
-    return { records: [], totalPages: 0 };
-  }
-
-  const headers = data[0];
-  let siteIndex = headers.indexOf("Site");
-  let doneByIndex = headers.indexOf("Expense Done By / Petty Cash Sent To");
-  let dateIndex = headers.indexOf("Date");
-
-  let filterDate = fromDate ? new Date(fromDate) : null;
-
-  let filteredData = data.filter((row, index) => {
-    if (index === 0) return false;
-
-    let rowSite = row[siteIndex]?.toString().trim().toLowerCase();
-    let rowDoneBy = row[doneByIndex]?.toString().trim().toLowerCase();
-    let rawDate = row[dateIndex];
-
-    let rowDate = rawDate instanceof Date ? rawDate : new Date(rawDate.replace(/-/g, "/"));
-    if (isNaN(rowDate)) return false;
-
-    let siteMatch = rowSite === site.trim().toLowerCase();
-    let doneByMatch = rowDoneBy === expenseDoneBy.trim().toLowerCase();
-    let dateMatch = filterDate ? rowDate >= filterDate : true;
-
-    return siteMatch && doneByMatch && dateMatch;
-  });
-
-  Logger.log(`✅ Found ${filteredData.length} records`);
-
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-  const start = (page - 1) * recordsPerPage;
-  const end = start + recordsPerPage;
-  const paginatedData = filteredData.slice(start, end);
-
-  return { records: paginatedData, totalPages };
-}
-
-
-
-
-
-
-
-
-function getAllRecords() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("CreditExpense");
-  
-  if (!sheet) {
-    return { records: [], totalPages: 0 };
-  }
-
-  const data = sheet.getDataRange().getValues();
-  if (data.length <= 1) {
-    return { records: [], totalPages: 0 };
-  }
-
-  const headers = data[0]; // First row contains column names
-  const records = data.slice(1); // Exclude header row
-
-  return { headers, records };
-}
-
-
